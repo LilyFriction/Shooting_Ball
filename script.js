@@ -118,11 +118,11 @@ class Player extends GameObject {
     dy = -1;
   }
 
-  const length = Math.hypot(dx, dy);
+  const length = Math.hypot(dx, dy) || 1;
   dx /= length;
   dy /= length;
 
-  const speed = 12;
+  const speed = 120;
 
   bullets.push(
    new Bullet(this.x, this.y, dx * speed, dy * speed, this.color, this)
@@ -184,19 +184,21 @@ function gameLoop() {
 
   // 3) 총알 업데이트
   bullets.forEach(b => b.update(canvas.width, canvas.height));
+ 
   // 💥 충돌 체크
-  bullets.forEach((b, bulletIndex) => {
-    [p1, p2].forEach(player => {
-      // 자기 자신은 맞지 않도록
-      if (b.owner === player) return;
-      
-      if (isColliding(b, player)) {
-        player.hp--; // 데미지
-        // 총알 제거
-        bullets.splice(bulletIndex, 1);
+  for (let i = bullets.length - 1; i >= 0; i--) {
+  const b = bullets[i];
+
+  for (const player of [p1, p2]) {
+    if (b.owner === player) continue;
+
+    if (isColliding(b, player)) {
+      player.hp--;
+      bullets.splice(i, 1);
+      break;
     }
-  });
-});
+  }
+}
   
   // 죽은 총알 제거
   for (let i = bullets.length - 1; i >= 0; i--) {
