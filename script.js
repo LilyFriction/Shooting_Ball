@@ -1,5 +1,5 @@
-/**
- * 1. 환경 설정 및 캔버스 초기화
+/*
+ 환경 설정 및 캔버스 초기화
  */
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -7,8 +7,8 @@ const ctx = canvas.getContext('2d');
 canvas.width = 1500;
 canvas.height = 900;
 
-/**
- * 2. 게임 객체 최상위 클래스
+/*
+ 게임 객체 최상위 클래스
  */
 class GameObject {
   constructor(x, y, color) {
@@ -22,6 +22,7 @@ class GameObject {
     this.color = color;
     this.radius = 15;      // 충돌 판정용 반지름
   }
+
 
   // 물리 시뮬레이션 업데이트
   update(canvasWidth, canvasHeight) {
@@ -59,6 +60,13 @@ class GameObject {
       this.y = height - this.radius;
       this.vy *= -0.5;
     }
+
+    // 물체 간 충돌
+    function isColliding(a, b) {
+      const dx = a.x - b.x;
+      const dy = a.y - b.y;
+      return Math.hypot(dx, dy) < a.radius + b.radius;
+    }
   }
 
   // 화면에 그리기
@@ -68,16 +76,22 @@ class GameObject {
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
     ctx.fill();
     ctx.closePath();
+
+    //체력 표시
+    ctx.fillStyle = 'black';
+    ctx.fillText(`P1 HP: ${p1.hp}`, 20, 30);
+    ctx.fillText(`P2 HP: ${p2.hp}`, 20, 60);
   }
 }
 
-/**
- * 3. 플레이어 클래스 (GameObject 상속)
+/*
+ 플레이어 클래스 (GameObject 상속)
  */
 class Player extends GameObject {
   constructor(x, y, color, controls) {
     super(x, y, color);
-    this.controls = controls; // 조작키 설정 { up, down, left, right }
+    this.controls = controls; // 조작키 설정 { up, down, left, right, shoot }
+    this.hp = 5; // 체력 추가
   }
 
   handleInput(keys) {
@@ -91,48 +105,135 @@ class Player extends GameObject {
     this.vx = Math.max(-this.maxSpeed, Math.min(this.maxSpeed, this.vx));
     this.vy = Math.max(-this.maxSpeed, Math.min(this.maxSpeed, this.vy));
   }
+
+  shoot(bullets) {
+  // 움직이는 방향 기준으로 발사
+  let dx = this.vx;
+  let dy = this.vy;
+
+  // 가만히 있을 때 기본 방향 (위쪽)
+  if (dx === 0 && dy === 0) {
+    dy = -1;
+  }
+
+  const length = Math.hypot(dx, dy);
+  dx /= length;
+  dy /= length;
+
+  const speed = 12;
+
+  bullets.push(new Bullet(
+    this.x,
+    this.y,
+    dx * speed,
+    dy * speed,
+    this.color
+    this
+  ));
+}
 }
 
-/**
- * 4. 인스턴스 생성 및 상태 관리
+/*
+ 불렛 클래스 (GameObject 상속)
+ */
+
+class Bullet extends GameObject {
+  constructor(x, y, vx, vy, color, owner) {
+    super(x, y, color);
+    this.vx = vx;
+    this.vy = vy;
+    this.radius = 5;
+    this.life = 100; // 수명 (프레임 기준)
+    this.owner = owner;
+  }
+
+  update(canvasWidth, canvasHeight) {
+    super.update(canvasWidth, canvasHeight);
+    this.life--;
+  }
+
+  isAlive() {
+    return this.life > 0;
+  }
+}
+
+/*
+ 인스턴스 생성 및 상태 관리
  */
 const p1 = new Player(100, 300, 'blue', { 
-  up: 'w', down: 's', left: 'a', right: 'd' 
+  up: 'w', down: 's', left: 'a', right: 'd', shoot: 'e'
 });
 
 const p2 = new Player(700, 300, 'red', { 
-  up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight' 
+  up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', shoot: '0' 
 });
 
 const keys = {}; // 눌린 키 상태 저장 객체
+const bullets = [];
 
-/**
- * 5. 메인 게임 루프
+/*
+ 메인 게임 루프
  */
 function gameLoop() {
   // 1) 화면 초기화
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // 2) 데이터 업데이트 (입력 -> 물리)
+  // 2) 플레이어 업데이트 (입력 -> 물리)
   p1.handleInput(keys);
   p1.update(canvas.width, canvas.height);
 
   p2.handleInput(keys);
   p2.update(canvas.width, canvas.height);
 
-  // 3) 렌더링
+  // 3) 총알 업데이트
+  bullets.forEach(b => b.update(canvas.width, canvas.height));
+  // 💥 충돌 체크
+  bullets.forEach((b, bulletIndex) => {
+    [p1, p2].forEach(player => {
+      // 자기 자신은 맞지 않도록
+      if (b.owner === player) return;
+      
+      if (isColliding(b, player)) {
+        player.hp--; // 데미지
+        // 총알 제거
+        bullets.splice(bulletIndex, 1);
+    }
+  });
+});
+  
+  // 죽은 총알 제거
+  for (let i = bullets.length - 1; i >= 0; i--) {
+    if (!bullets[i].isAlive()) {
+      bullets.splice(i, 1);
+    }
+  }
+
+  // 4) 렌더링
   p1.draw(ctx);
   p2.draw(ctx);
+
+  bullets.forEach(b => b.draw(ctx));
 
   // 다음 프레임 예약
   requestAnimationFrame(gameLoop);
 }
 
-/**
- * 6. 이벤트 리스너 등록
+/*
+ 이벤트 리스너 등록
  */
 window.addEventListener('keydown', e => { keys[e.key] = true; });
 window.addEventListener('keyup', e => { keys[e.key] = false; });
+window.addEventListener('keydown', e => {
+  keys[e.key] = true;
+
+  // 슈팅 키 눌렀을 때
+  if (e.key === p1.controls.shoot) {
+    p1.shoot(bullets);
+  }
+  if (e.key === p2.controls.shoot) {
+    p2.shoot(bullets);
+  }
+});
 
 // 게임 시작
 gameLoop();
