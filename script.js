@@ -1,6 +1,6 @@
 // 1. 캔버스 엘리먼트 가져오기
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+# const canvas = document.getElementById('gameCanvas');
+# const ctx = canvas.getContext('2d');
 
 canvas.width = 1500
 canvas.height = 900
