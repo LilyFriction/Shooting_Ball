@@ -68,8 +68,8 @@ class Player extends GameObject {
         // 속도 제한 (Magnitude 사용 권장하지만 간단히 처리)
         if (this.vx > this.maxSpeed) this.vx = this.maxSpeed;
         if (this.vx < -this.maxSpeed) this.vx = -this.maxSpeed;
-        if (this.vy > this.maxSpeed) this.vx = this.maxSpeed;
-        if (this.vy < -this.maxSpeed) this.vx = -this.maxSpeed;
+        if (this.vy > this.maxSpeed) this.vy = this.maxSpeed;
+        if (this.vy < -this.maxSpeed) this.vy = -this.maxSpeed;
     }
 }
 // requestAnimationFrame : 브라우저 전용 루프 함수
@@ -87,10 +87,10 @@ function gameLoop() {
 
     // 2. 입력 처리 및 업데이트
     p1.handleInput(keys);
-    p1.update();
+    p1.update(canvas.width, canvas.height);
     
     p2.handleInput(keys);
-    p2.update();
+    p2.update(canvas.width, canvas.height);
 
     // 3. 그리기
     p1.draw(ctx);
