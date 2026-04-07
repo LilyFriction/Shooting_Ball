@@ -93,7 +93,7 @@ class Player extends GameObject {
   constructor(x, y, color, controls) {
     super(x, y, color);
     this.controls = controls; // 조작키 설정 { up, down, left, right, shoot }
-    this.hp = 5; // 체력 추가
+    this.hp = 5; // 체력
   }
 
   handleInput(keys) {
@@ -141,6 +141,7 @@ class Bullet extends GameObject {
     this.vy = vy;
     this.radius = 5;
     this.life = 100; // 수명 (프레임 기준)
+    this.friction = 0.985
     this.owner = owner;
   }
 
