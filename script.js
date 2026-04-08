@@ -21,6 +21,7 @@ class GameObject {
     this.maxSpeed = 6;     // 최대 이동 속도
     this.color = color;
     this.radius = 15;      // 충돌 판정용 반지름
+    this.dir = { x: 0, y: -1 }; // 방향
   }
 
 
@@ -94,14 +95,23 @@ class Player extends GameObject {
     super(x, y, color);
     this.controls = controls; // 조작키 설정 { up, down, left, right, shoot }
     this.hp = 5; // 체력
+    this.cooldown = 0; // 쿨타임
   }
 
   handleInput(keys) {
-    // 방향키 입력에 따른 가속
-    if (keys[this.controls.up])    this.vy -= this.accel;
-    if (keys[this.controls.down])  this.vy += this.accel;
-    if (keys[this.controls.left])  this.vx -= this.accel;
-    if (keys[this.controls.right]) this.vx += this.accel;
+    // 방향키 입력에 따른 가속, 방향 설정
+    let dx = 0;
+    let dy = 0;
+    if (keys[this.controls.up])    { this.vy -= this.accel; dy -= 1;}
+    if (keys[this.controls.down])  { this.vy += this.accel; dy += 1;}
+    if (keys[this.controls.left])  { this.vx -= this.accel; dx -= 1;}
+    if (keys[this.controls.right]) { this.vx += this.accel; dx += 1;}
+
+    if (dx !== 0 || dy !== 0) {
+      const len = Math.hypot(dx, dy);
+      this.dir = { x: dx / len, y: dy / len };
+    }
+    
 
     // 최대 속도 제한
     this.vx = Math.max(-this.maxSpeed, Math.min(this.maxSpeed, this.vx));
@@ -109,25 +119,23 @@ class Player extends GameObject {
   }
 
   shoot(bullets) {
-  // 움직이는 방향 기준으로 발사
-  let dx = this.vx;
-  let dy = this.vy;
-
-  // 가만히 있을 때 기본 방향 (위쪽)
-  if (dx === 0 && dy === 0) {
-    dy = -1;
+    if (this.cooldown > 0) return;
+    this.cooldown = 10; // 프레임 기준
+    const speed = 24;
+    bullets.push(
+      new Bullet(this.x, this.y,
+      this.dir.x * speed,
+      this.dir.y * speed,
+      this.color,
+      this
+      )
+    );
   }
 
-  const length = Math.hypot(dx, dy) || 1;
-  dx /= length;
-  dy /= length;
-
-  const speed = 24;
-
-  bullets.push(
-   new Bullet(this.x, this.y, dx * speed, dy * speed, this.color, this)
-  );
-}
+  update(canvasWidth, canvasHeight) {
+    super.update(canvasWidth, canvasHeight);
+    if (this.cooldown > 0) this.cooldown--;
+  }
 }
 
 /*
@@ -149,7 +157,7 @@ class Bullet extends GameObject {
     super.update(canvasWidth, canvasHeight);
     this.life--;
   }
-
+  
   isAlive() {
     return this.life > 0;
   }
@@ -185,6 +193,15 @@ function gameLoop() {
 
   // 3) 총알 업데이트
   bullets.forEach(b => b.update(canvas.width, canvas.height));
+
+  // 총알 발사
+  if (keys[p1.controls.shoot]) {
+    p1.shoot(bullets);
+  }
+  
+  if (keys[p2.controls.shoot]) {
+    p2.shoot(bullets);
+  }
  
   // 💥 충돌 체크
   for (let i = bullets.length - 1; i >= 0; i--) {
@@ -199,6 +216,7 @@ function gameLoop() {
       break;
     }
   }
+    
 }
   
   // 죽은 총알 제거
@@ -215,23 +233,23 @@ function gameLoop() {
   bullets.forEach(b => b.draw(ctx));
 
   drawUI();
-
+  // 5) 게임오버
+  if (p1.hp <= 0 || p2.hp <= 0) {
+    ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
+    return;
+  }
+  
   // 다음 프레임 예약
   requestAnimationFrame(gameLoop);
+
+  
 }
 
 /*
  이벤트 리스너 등록
  */
 window.addEventListener('keydown', e => {
- keys[e.key] = true;
- 
- if (e.key === p1.controls.shoot) {
-  p1.shoot(bullets);
- }
- if (e.key === p2.controls.shoot) {
-  p2.shoot(bullets);
- }
+  keys[e.key] = true;
 });
 window.addEventListener('keyup', e => { keys[e.key] = false; });
 
