@@ -142,6 +142,7 @@ class Player extends GameObject {
   update(canvasWidth, canvasHeight) {
     super.update(canvasWidth, canvasHeight);
     if (this.cooldown > 0) this.cooldown--;
+    if (this.hitTimer > 0) this.hitTimer--;
   }
 }
 
