@@ -167,11 +167,11 @@ class Bullet extends GameObject {
  인스턴스 생성 및 상태 관리
  */
 const p1 = new Player(100, 300, 'blue', { 
-  up: 'w', down: 's', left: 'a', right: 'd', shoot: 'e'
+  up: 'w', down: 's', left: 'a', right: 'd', shoot: 'f'
 });
 
 const p2 = new Player(700, 300, 'red', { 
-  up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', shoot: '0' 
+  up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', shoot: 'Enter' 
 });
 
 const keys = {}; // 눌린 키 상태 저장 객체
@@ -248,10 +248,8 @@ function gameLoop() {
 /*
  이벤트 리스너 등록
  */
-window.addEventListener('keydown', e => {
-  keys[e.key] = true;
-});
-window.addEventListener('keyup', e => { keys[e.key] = false; });
+window.addEventListener('keydown', e => {keys[e.key.toLowerCase()] = true;});
+window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
 
 // 게임 시작
 gameLoop();
