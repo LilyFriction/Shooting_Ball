@@ -65,16 +65,17 @@ class GameObject {
 
   // 화면에 그리기
   draw(ctx) {
-    if (this.hitTimer > 0) {
-      ctx.fillStyle = 'white'; // 맞았을 때 반짝
-    } else {
-      ctx.fillStyle = this.color;
-    }
-    
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.closePath();
+   let c = this.color;
+   
+   if (this.hitTimer > 0) {
+    c = invertColor(this.color);
+   }
+   
+   ctx.fillStyle = `rgb(${c.r}, ${c.g}, ${c.b})`;
+   ctx.beginPath();
+   ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+   ctx.fill();
+   ctx.closePath();
   }
 }
 
@@ -91,6 +92,15 @@ function drawUI() {
   ctx.fillStyle = 'black';
   ctx.fillText(`P1 HP: ${p1.hp}`, 20, 30);
   ctx.fillText(`P2 HP: ${p2.hp}`, 20, 60);
+}
+
+// 색상 반전
+function invertColor(c) {
+ return {
+  r: 255 - c.r,
+  g: 255 - c.g,
+  b: 255 - c.b
+ };
 }
 
 /*
@@ -174,11 +184,11 @@ class Bullet extends GameObject {
 /*
  인스턴스 생성 및 상태 관리
  */
-const p1 = new Player(100, 300, 'blue', { 
+const p1 = new Player(100, 300, { r: 0, g: 0, b: 255 }, { 
   up: 'w', down: 's', left: 'a', right: 'd', shoot: 'f'
 });
 
-const p2 = new Player(700, 300, 'red', { 
+const p2 = new Player(1400, 600, { r: 255, g: 0, b: 0 }, { 
   up: 'arrowup', down: 'arrowdown', left: 'arrowleft', right: 'arrowright', shoot: '9' 
 });
 
