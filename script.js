@@ -245,7 +245,7 @@ class Bullet extends GameObject {
     this.vx = vx;
     this.vy = vy;
     this.radius = 5;
-    this.life = 1000;
+    this.life = 100;
     this.friction = 1;
     this.owner = owner;
   }
