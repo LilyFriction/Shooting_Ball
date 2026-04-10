@@ -5,12 +5,17 @@ body {
     justify-content: center;
     height: 100vh;
     margin: 0;
-    background-color: #f0f0f0;
+    background-color: #222;
     font-family: sans-serif;
+    overflow: hidden;
+    user-select: none;
 }
 
 canvas {
     border: 5px solid #333;
     background-color: #fff;
-    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    max-width: 100%;
+    height: auto;
+    outline: none;
 }
