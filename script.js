@@ -10,22 +10,20 @@ const GAME_STATE = {
   GAMEOVER: 'GAMEOVER'
 };
 let currentState = GAME_STATE.START;
+let winner = null;
 
 const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');+
+const ctx = canvas.getContext('2d');
   
 // 플레이어 속도 등 기본값
 const SETTINGS = {
-  PLAYER_SPEED: 6,
+  PLAYER_SPEED: 3,
   PLAYER_ACCEL: 0.5,
   PLAYER_FRICTION: 0.92,
-  BULLET_SPEED: 24,
+  BULLET_SPEED: 12,
   SHOOT_COOLDOWN: 50,
   MAX_HP: 5
 };
-
-// 사용 시: this.maxSpeed = SETTINGS.PLAYER_SPEED;
-
 
 // 화면 해상도 설정
 canvas.width = 1500;
@@ -142,9 +140,9 @@ class GameObject {
     this.y = y;
     this.vx = 0;          // x축 속도
     this.vy = 0;          // y축 속도
-    this.accel = 0.5;     // 가속도 (이동할 때 더해지는 힘)
-    this.friction = 0.92; // 마찰력 (미끄러짐 제어)
-    this.maxSpeed = 6;    // 최대 속도 제한
+    this.accel = SETTINGS.PLAYER_ACCEL;     // 가속도 (이동할 때 더해지는 힘)
+    this.friction = SETTINGS.PLAYER_FRICTION; // 마찰력 (미끄러짐 제어)
+    this.maxSpeed = SETTINGS.PLAYER_SPEED;    // 최대 속도 제한
     this.color = color;
     this.radius = 15;     // 충돌 판정용 반지름 (크기)
     this.dir = { x: 0, y: -1 }; // 객체가 바라보는 기본 방향
@@ -215,7 +213,7 @@ class Player extends GameObject {
   constructor(x, y, color, controls) {
     super(x, y, color);
     this.controls = controls; // 할당된 키보드 조작키 객체
-    this.hp = 5;
+    this.hp = SETTINGS.MAX_HP;
     this.cooldown = 0;        // 총알 발사 쿨타임
     this.hitTimer = 0;        // 피격 시 무적/깜빡임 지속 시간
   }
@@ -246,8 +244,8 @@ class Player extends GameObject {
   shoot(bullets) {
     if (this.cooldown > 0) return; // 쿨타임 중이면 발사 불가
     
-    this.cooldown = 50; // 발사 후 쿨타임 초기화
-    const speed = 24;   // 총알 속도
+    this.cooldown = SETTINGS.SHOOT_COOLDOWN; // 발사 후 쿨타임 초기화
+    const speed = SETTINGS.BULLET_SPEED;   // 총알 속도
     
     bullets.push(
       new Bullet(
@@ -308,7 +306,7 @@ class Bullet extends GameObject {
     this.vx = vx;
     this.vy = vy;
     this.radius = 5;
-    this.life = 100;    // 총알의 수명 (프레임 단위)
+    this.life = 200;    // 총알의 수명 (프레임 단위)
     this.friction = 1;  // 마찰력 없음 (일정 속도로 계속 날아감)
     this.owner = owner; // 자신을 쏜 플레이어 객체 참조
   }
@@ -434,9 +432,17 @@ window.addEventListener('keydown', e => {
   // 게임 오버 상태에서 R을 누르면 재시작
   if (currentState === GAME_STATE.GAMEOVER && key === 'r') {
     resetGame();
-    currentState = GAME_STATE.PLAYING; // 초기화 후 바로 시작하거나 START로 보냄
+    currentState = GAME_STATE.PLAYING;
   }
 });
+
+window.addEventListener('keyup', e => {
+  const key = e.key.toLowerCase();
+  keys[key] = false; 
+});
+
+// 엔진 시동
+gameLoop();
 
 // 엔진 시동
 gameLoop();
