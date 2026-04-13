@@ -78,7 +78,7 @@ function drawUI() {
   ctx.font = "bold 18px Arial";
   ctx.fillText("P1 (Blue)", 20, 30);
   ctx.font = "14px Arial";
-  ctx.fillText("Move: W, A, S, D | Shoot: F | Reload: V", 20, 55);
+  ctx.fillText("Move: W, A, S, D | Shoot: F | Reload: R", 20, 55);
   
   ctx.font = "bold 16px Arial";
   // 재장전 중일 때는 주황색으로 상태 표시
@@ -91,7 +91,7 @@ function drawUI() {
   ctx.font = "bold 18px Arial";
   ctx.fillText("P2 (Red)", canvas.width - 20, 30);
   ctx.font = "14px Arial";
-  ctx.fillText("Move: Arrows | Shoot: Num 9 | Reload: Num 0", canvas.width - 20, 55);
+  ctx.fillText("Move: I, J, K, L | Shoot: ; | Reload: P", canvas.width - 20, 55);
   
   ctx.font = "bold 16px Arial";
   ctx.fillStyle = p2.isReloading ? "orange" : SETTINGS.NORMAL_FONT_COLOR;
@@ -322,9 +322,9 @@ const p1 = new Player(100, 300, { r: 0, g: 0, b: 255 }, {
   up: 'w', down: 's', left: 'a', right: 'd', shoot: 'f', reload: 'v'
 });
 
-// Player 2 설정 (빨간색, 방향키 & Num9, 수동재장전 Num0)
+// Player 2 설정 (빨간색, IJKL & ;, 수동재장전 P)
 const p2 = new Player(1400, 600, { r: 255, g: 0, b: 0 }, {
-  up: 'arrowup', down: 'arrowdown', left: 'arrowleft', right: 'arrowright', shoot: '9', reload: '0'
+  up: 'i', down: 'k', left: 'j', right: 'l', shoot: ';', reload: 'p'
 });
 
 /* =========================================================================
