@@ -31,7 +31,7 @@ const SETTINGS = {
 };
 
 // FPS 고정
-const TARGET_FPS = 60;
+const TARGET_FPS = 61; // 목적은 60fps이나, 60으로 설정했을 때 잔렉이 많이 발생하는 것으로 보여 여유를 둠.
 const FPS_INTERVAL = 1000 / TARGET_FPS;
 let lastTime = 0;
 
