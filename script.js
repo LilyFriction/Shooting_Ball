@@ -368,7 +368,19 @@ const p2 = new Player(1400, 600, { r: 255, g: 0, b: 0 }, {
    [메인 게임 루프]
    매 초 60회 가량 실행되며 물리 연산과 화면 그리기를 반복합니다.
 ========================================================================= */
-function gameLoop() {
+function gameLoop(timestamp) {
+
+  // 처음 실행될 때 timestamp가 없다면 초기화
+  if (!lastTime) lastTime = timestamp;
+
+  // 현재 시간과 마지막 실행 시간의 차이 계산
+  const elapsed = timestamp - lastTime;
+
+  // 경과 시간이 16.67ms (60fps 기준)를 넘었을 때만 게임 로직 실행
+  if (elapsed > FPS_INTERVAL) {
+    // 다음 프레임 계산이 밀리지 않도록 초과된 자투리 시간을 보정 (매우 중요!)
+    lastTime = timestamp - (elapsed % FPS_INTERVAL);
+    
   // 1. 시작 화면 처리
   if (currentState === GAME_STATE.START) {
     drawStartScreen();
@@ -474,4 +486,4 @@ window.addEventListener('keyup', e => {
 });
 
 // 모든 준비가 끝나면 루프 시작
-gameLoop();
+requestAnimationFrame(gameLoop);
