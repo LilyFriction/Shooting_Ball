@@ -359,7 +359,7 @@ class Bullet extends GameObject {
 const keys = {};     // 현재 눌려있는 키 상태를 저장하는 객체
 const bullets = [];   // 화면에 존재하는 모든 총알 인스턴스 저장 배열
 
-// Player 1 설정 (파란색, WASD & F, 수동재장전 V)
+// Player 1 설정 (파란색, WASD & F, 수동재장전 R)
 const p1 = new Player(100, 300, { r: 0, g: 0, b: 255 }, {
   up: 'w', down: 's', left: 'a', right: 'd', shoot: 'f', reload: 'r'
 });
